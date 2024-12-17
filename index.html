@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project "Brilliant Braille"</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .main, .viewer {
+            flex: 1;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: #eee;
+        }
+        .main {
+            display: flex; /* 메인 화면 기본 표시 */
+            flex-direction: column;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 20px 30px;
+            font-size: 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 15px 0;
+            width: 300px;
+            text-align: center;
+        }
+        button:hover {
+            background-color: #005f99;
+        }
+        iframe {
+            width: 80%;
+            height: 90%;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>Project "Brilliant Braille"</header>
+
+    <!-- Main Screen -->
+    <div class="main">
+        <h1>Welcome to Project "Brilliant Braille"</h1>
+        <button onmouseover="speakText('Open Example 1')" onclick="openPDF('docs/example1.pdf')">Open Example 1</button>
+        <button onmouseover="speakText('Open Example 2')" onclick="openPDF('docs/example2.pdf')">Open Example 2</button>
+    </div>
+
+    <!-- PDF Viewer -->
+    <div class="viewer">
+        <iframe src="" id="pdfFrame" title="PDF Viewer"></iframe>
+        <button onmouseover="speakText('Back to Main')" onclick="goBack()">Back to Main</button>
+    </div>
+
+    <footer>2024 기계동작의 원리 8팀</footer>
+
+    <script>
+        // 화면 요소들 가져오기
+        const mainScreen = document.querySelector('.main');
+        const viewerScreen = document.querySelector('.viewer');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        // PDF 열기 함수
+        function openPDF(pdfPath) {
+            pdfFrame.src = pdfPath; // PDF 파일 경로 설정
+            mainScreen.style.display = 'none'; // 메인 화면 숨기기
+            viewerScreen.style.display = 'flex'; // PDF 뷰어 화면 표시
+        }
+
+        // 메인 화면으로 돌아가는 함수
+        function goBack() {
+            viewerScreen.style.display = 'none'; // PDF 뷰어 화면 숨기기
+            mainScreen.style.display = 'flex'; // 메인 화면 표시
+        }
+
+        // 텍스트 읽어주는 함수
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; // 영어로 설정 (필요시 ko-KR로 변경 가능)
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error('Speech synthesis is not supported in this browser.');
+            }
+        }
+    </script>
+</body>
+</html>
