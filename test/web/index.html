@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project "Brilliant Braille"</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+        }
+        .main, .viewer {
+            flex: 1;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            background-color: #eee;
+        }
+        .main {
+            display: flex; /* 메인 화면 기본 표시 */
+            flex-direction: column;
+        }
+        button {
+            background-color: #007acc;
+            color: white;
+            border: none;
+            padding: 20px 30px;
+            font-size: 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 15px 0;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* 기본 그림자 */
+            transition: all 0.3s ease; /* 부드러운 전환 효과 */
+        }
+        button:hover {
+            background-color: #005f99;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* 강조된 그림자 */
+            transform: translateY(-2px); /* 살짝 위로 올라감 */
+        }
+        button:active {
+            background-color: #003f66;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* 그림자 축소 */
+            transform: translateY(2px); /* 살짝 아래로 눌림 */
+        }
+        button:focus {
+            outline: 2px solid #ffcc00; /* 노란색 테두리 */
+            outline-offset: 4px;
+        }
+        iframe {
+            width: 80%;
+            height: 90%;
+            border: none;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #333;
+            color: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <header>Project "Brilliant Braille"</header>
+
+    <!-- Main Screen -->
+    <div class="main">
+        <h1>Welcome to Project "Brilliant Braille"</h1>
+        <button onmouseover="speakText('Open Example 1')" onclick="openPDF('docs/example1.pdf')">Open Example 1</button>
+        <button onmouseover="speakText('Open Example 2')" onclick="openPDF('docs/example2.pdf')">Open Example 2</button>
+    </div>
+
+    <!-- PDF Viewer -->
+    <div class="viewer">
+        <iframe src="" id="pdfFrame" title="PDF Viewer"></iframe>
+        <button onmouseover="speakText('Back to Main')" onclick="goBack()">Back to Main</button>
+    </div>
+
+    <footer>2024 기계동작의 원리 8팀</footer>
+
+    <script>
+        const mainScreen = document.querySelector('.main');
+        const viewerScreen = document.querySelector('.viewer');
+        const pdfFrame = document.getElementById('pdfFrame');
+
+        function openPDF(pdfPath) {
+            pdfFrame.src = pdfPath; 
+            mainScreen.style.display = 'none'; 
+            viewerScreen.style.display = 'flex'; 
+        }
+
+        function goBack() {
+            viewerScreen.style.display = 'none'; 
+            mainScreen.style.display = 'flex'; 
+        }
+
+        function speakText(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US'; 
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.error('Speech synthesis is not supported in this browser.');
+            }
+        }
+
+        let socket = new WebSocket("ws://localhost:8765");
+
+        socket.onopen = () => {
+            console.log("Connected to server");
+        };
+
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            speakText(data.current_item);
+        };
+
+        socket.onclose = () => {
+            console.log("Disconnected from server");
+        };
+    </script>
+</body>
+</html>
