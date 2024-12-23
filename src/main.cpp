@@ -175,13 +175,13 @@ void displayCharacter(char letter) {
 
 char getJoystickDirection(int xValue, int yValue) {
   if (xValue < 300 && yValue > 450 && yValue < 550) {
-    return 'L';
-  } else if (xValue > 700 && yValue > 450 && yValue < 550) {
-    return 'R';
-  } else if (yValue < 300 && xValue > 450 && xValue < 550) {
     return 'U';
-  } else if (yValue > 700 && xValue > 450 && xValue < 550) {
+  } else if (xValue > 700 && yValue > 450 && yValue < 550) {
     return 'D';
+  } else if (yValue < 300 && xValue > 450 && xValue < 550) {
+    return 'R';
+  } else if (yValue > 700 && xValue > 450 && xValue < 550) {
+    return 'L';
   }
   return '0';
 }

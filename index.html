@@ -60,6 +60,9 @@
             color: white;
             font-size: 14px;
         }
+        #backToMain {
+            display: none; /* Back to Main 버튼 기본 숨김 */
+        }
     </style>
 </head>
 <body>
@@ -68,42 +71,74 @@
     <!-- Main Screen -->
     <div class="main">
         <h1>Welcome to Project "Brilliant Braille"</h1>
-        <button onmouseover="speakText('Open Example 1')" onclick="openPDF('docs/example1.pdf')">Open Example 1</button>
-        <button onmouseover="speakText('Open Example 2')" onclick="openPDF('docs/example2.pdf')">Open Example 2</button>
+        <button onmouseover="speakText('Open Example')" onclick="handleExample1()">Open Example</button>
+        <button onmouseover="speakText('How to Use')" onclick="openPDF('How_to_Use.pdf')">How to Use</button>
     </div>
 
     <!-- PDF Viewer -->
     <div class="viewer">
         <iframe src="" id="pdfFrame" title="PDF Viewer"></iframe>
-        <button onmouseover="speakText('Back to Main')" onclick="goBack()">Back to Main</button>
+        <button id="backToMain" onmouseover="speakText('Back to Main')" onclick="goBack()">Back to Main</button>
     </div>
 
-    <footer>2024 기계동작의 원리 8팀</footer>
+    <footer>
+        2024 기계동작의 원리 8팀<br>
+        <a href="https://github.com/Danw03/project_brilliant_braille.git" target="_blank" style="color: white; text-decoration: none;">
+            Visit our GitHub
+        </a>
+    </footer>
+    
 
     <script>
-        // 화면 요소들 가져오기
+        // 화면 요소 가져오기
         const mainScreen = document.querySelector('.main');
         const viewerScreen = document.querySelector('.viewer');
         const pdfFrame = document.getElementById('pdfFrame');
+        const backToMainButton = document.getElementById('backToMain');
 
         // PDF 열기 함수
         function openPDF(pdfPath) {
-            pdfFrame.src = pdfPath; // PDF 파일 경로 설정
-            mainScreen.style.display = 'none'; // 메인 화면 숨기기
-            viewerScreen.style.display = 'flex'; // PDF 뷰어 화면 표시
+            pdfFrame.src = '/docs/' + pdfPath; // 서버 경로에서 PDF 불러오기
+            mainScreen.style.display = 'none';  // 메인 화면 숨기기
+            viewerScreen.style.display = 'flex';  // PDF 뷰어 화면 표시
+            backToMainButton.style.display = 'block'; // Back to Main 버튼 표시
         }
 
-        // 메인 화면으로 돌아가는 함수
+        // Python 스크립트 실행 및 Example 1 PDF 열기
+        function handleExample1() {
+            pdfFrame.src = '/docs/example1.pdf'; // Example 1 PDF만 열기
+            mainScreen.style.display = 'none';
+            viewerScreen.style.display = 'flex';
+            backToMainButton.style.display = 'none'; // Back to Main 버튼 숨김
+
+            fetch('/run-python', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Python script 실행 성공:', data.message);
+                } else {
+                    console.error('실행 실패:', data.message);
+                }
+            })
+            .catch(error => console.error('서버 연결 오류:', error));
+        }
+
+        // 메인 화면으로 돌아가기
         function goBack() {
-            viewerScreen.style.display = 'none'; // PDF 뷰어 화면 숨기기
-            mainScreen.style.display = 'flex'; // 메인 화면 표시
+            fetch('/stop-python', { method: 'POST' }) // Python 프로세스 종료
+            .then(response => response.json())
+            .then(data => console.log('Python script 종료:', data.message))
+            .catch(error => console.error('서버 연결 오류:', error));
+
+            viewerScreen.style.display = 'none';
+            mainScreen.style.display = 'flex';
         }
 
-        // 텍스트 읽어주는 함수
+        // 텍스트 음성 출력
         function speakText(text) {
             if ('speechSynthesis' in window) {
                 const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'en-US'; // 영어로 설정 (필요시 ko-KR로 변경 가능)
+                utterance.lang = 'en-US';
                 window.speechSynthesis.speak(utterance);
             } else {
                 console.error('Speech synthesis is not supported in this browser.');
